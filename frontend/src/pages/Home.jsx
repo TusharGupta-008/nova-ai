@@ -7,7 +7,7 @@ import { CgMenuRight } from "react-icons/cg";
 import { RxCross1 } from "react-icons/rx";
 import userImg from "../assets/user.gif";
 function Home() {
-  const { userData, serverUrl, setUserData, getGeminiResponse } =
+  const { userData, serverUrl, setUserData, getGroqResponse } =
     useContext(userDataContext);
   const navigate = useNavigate();
   const [listening, setListening] = useState(false);
@@ -66,13 +66,19 @@ function Home() {
     synth.speak(utterence);
   };
 
-  const handleCommand = (data) => {
+  const handleCommand = (data, newTab = null) => {
     const { type, userInput, response } = data;
     speak(response);
 
     if (type === "google-search") {
       const query = encodeURIComponent(userInput);
-      window.open(`https://www.google.com/search?q=${query}`, "_blank");
+      const url = `https://www.google.com/search?q=${query}`;
+
+      if (newTab) {
+        newTab.location.href = url;
+      } else {
+        window.open(url, "_blank");
+      }
     }
     if (type === "calculator-open") {
       window.open(`https://www.google.com/search?q=calculator`, "_blank");
@@ -84,15 +90,23 @@ function Home() {
       window.open(`https://www.facebook.com/`, "_blank");
     }
     if (type === "weather-show") {
-      window.open(`https://www.google.com/search?q=weather`, "_blank");
+      if (type === "weather-show") {
+        const query = encodeURIComponent(userInput);
+
+        window.open(`https://www.google.com/search?q=${query}`, "_blank");
+      }
     }
 
     if (type === "youtube-search" || type === "youtube-play") {
       const query = encodeURIComponent(userInput);
-      window.open(
-        `https://www.youtube.com/results?search_query=${query}`,
-        "_blank",
-      );
+      console.log("Opening YouTube...");
+      const url = `https://www.youtube.com/results?search_query=${query}`;
+
+      if (newTab) {
+        newTab.location.href = url;
+      } else {
+        window.open(url, "_blank");
+      }
     }
   };
 
@@ -164,6 +178,8 @@ function Home() {
     };
 
     recognition.onresult = async (e) => {
+      console.log("onresult fired");
+      console.log(event.results[0][0].transcript);
       const transcript = e.results[e.results.length - 1][0].transcript.trim();
       if (
         transcript.toLowerCase().includes(userData.assistantName.toLowerCase())
@@ -173,7 +189,9 @@ function Home() {
         recognition.stop();
         isRecognizingRef.current = false;
         setListening(false);
-        const data = await getGeminiResponse(transcript);
+
+        const data = await getGroqResponse(transcript);
+
         handleCommand(data);
         setAiText(data.response);
         setUserText("");
@@ -226,8 +244,11 @@ function Home() {
         <h1 className="text-white font-semibold text-[19px]">History</h1>
 
         <div className="w-full h-[400px] gap-[20px] overflow-y-auto flex flex-col truncate">
-          {userData.history?.map((his) => (
-            <div className="text-gray-200 text-[18px] w-full h-[30px]  ">
+          {userData.history?.map((his, index) => (
+            <div
+              key={index}
+              className="text-gray-200 text-[18px] w-full h-[30px]  "
+            >
               {his}
             </div>
           ))}

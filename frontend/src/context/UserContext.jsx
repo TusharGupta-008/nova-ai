@@ -19,7 +19,7 @@ function UserContext({ children }) {
     }
   };
 
-  const getGeminiResponse = async (command) => {
+  const getGroqResponse = async (command) => {
     try {
       const result = await axios.post(
         `${serverUrl}/api/user/asktoassistant`,
@@ -45,7 +45,7 @@ function UserContext({ children }) {
     setFrontendImage,
     selectedImage,
     setSelectedImage,
-    getGeminiResponse,
+    getGroqResponse,
   };
   return (
     <div>

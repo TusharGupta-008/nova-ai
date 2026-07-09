@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import bg from "../assets/authBg.png";
+
 import { IoEye } from "react-icons/io5";
 import { IoEyeOff } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
@@ -39,10 +39,7 @@ function SignUp() {
     }
   };
   return (
-    <div
-      className="w-full h-[100vh] bg-cover flex justify-center items-center"
-      style={{ backgroundImage: `url(${bg})` }}
-    >
+    <div className="w-full h-[100vh] bg-gradient-to-t from-[black] to-[#02023d] flex justify-center items-center">
       <form
         className="w-[90%] h-[600px] max-w-[500px] bg-[#00000062] backdrop-blur shadow-lg shadow-black flex flex-col items-center justify-center gap-[20px] px-[20px]"
         onSubmit={handleSignUp}
