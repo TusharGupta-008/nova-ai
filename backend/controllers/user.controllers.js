@@ -1,5 +1,5 @@
 import uploadOnCloudinary from "../config/cloudinary.js";
-import geminiResponse from "../gemini.js";
+import groqResponse from "../llm.js";
 import User from "../models/user.model.js";
 import moment from "moment";
 export const getCurrentUser = async (req, res) => {
@@ -36,7 +36,8 @@ export const updateAssistant = async (req, res) => {
     ).select("-password");
     return res.status(200).json(user);
   } catch (error) {
-    return res.status(400).json({ message: "updateAssistantError user error" });
+    console.log(error);
+    return res.status(500).json(error);
   }
 };
 
@@ -48,7 +49,7 @@ export const askToAssistant = async (req, res) => {
     user.save();
     const userName = user.name;
     const assistantName = user.assistantName;
-    const result = await geminiResponse(command, assistantName, userName);
+    const result = await groqResponse(command, assistantName, userName);
 
     const jsonMatch = result.match(/{[\s\S]*}/);
     if (!jsonMatch) {
