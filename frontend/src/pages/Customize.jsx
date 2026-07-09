@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useState, useEffect } from "react";
 import Card from "../components/Card";
-import image from "../assets/image.png";
+
 import Image_1 from "../assets/Image _1.png";
 import Image_2 from "../assets/Image _2.png";
 import Image_3 from "../assets/Image _3.png";
