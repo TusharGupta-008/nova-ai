@@ -1,7 +1,9 @@
-import axios from "axios";
-const geminiResponse = async (command, assistantName, userName) => {
+import Groq from "groq-sdk";
+const groqResponse = async (command, assistantName, userName) => {
   try {
-    const apiUrl = process.env.GEMINI_API_URL;
+    const groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+    });
     const prompt = `You are a virtual assistant named ${assistantName} created by ${userName}. 
 You are not Google. You will now behave like a voice-enabled assistant.
 
@@ -41,18 +43,26 @@ Important:
 
 now your userInput- ${command}
 `;
-
-    const result = await axios.post(apiUrl, {
-      contents: [
+    console.log("Calling Groq...");
+    const result = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
         {
-          parts: [{ text: prompt }],
+          role: "user",
+          content: prompt,
         },
       ],
+      temperature: 0.7,
     });
-    return result.data.candidates[0].content.parts[0].text;
+
+    return result.choices[0].message.content;
+    console.log("Groq replied");
+    console.log(apiUrl);
+    console.log(process.env.GROQ_API_KEY);
   } catch (error) {
-    console.log(error);
+    console.log(error.response?.data);
+    console.log(error.message);
   }
 };
 
-export default geminiResponse;
+export default groqResponse;
