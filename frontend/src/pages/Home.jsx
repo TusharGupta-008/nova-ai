@@ -32,6 +32,24 @@ function Home() {
     }
   };
 
+  const handleClearHistory = async () => {
+    const confirmClear = window.confirm(
+      "Are you sure you want to clear all history?",
+    );
+    if (!confirmClear) return;
+
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/user/clear-history`,
+        {},
+        { withCredentials: true },
+      );
+      setUserData(result.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const startRecognition = () => {
     if (!isSpeakingRef.current && !isRecognizingRef.current) {
       try {
@@ -217,31 +235,39 @@ function Home() {
   return (
     <div className="w-full h-[100vh] bg-gradient-to-t from-[black] to-[#02023d] flex justify-center items-center flex-col gap-[15px] overflow-hidden">
       <CgMenuRight
-        className="lg:hidden text-white absolute top-[20px] right-[20px] w-[25px] h-[25px]"
+        className="text-white absolute top-[20px] right-[20px] w-[25px] h-[25px] cursor-pointer z-20"
         onClick={() => setHam(true)}
       />
       <div
-        className={`absolute lg:hidden top-0 w-full h-full bg-[#00000053] backdrop-blur-lg p-[20px] flex flex-col gap-[20px] items-start ${ham ? "translate-x-0" : "translate-x-full"} transition-transform`}
+        className={`fixed top-0 right-0 h-full w-full lg:w-[400px] bg-[#00000090] backdrop-blur-lg p-[20px] flex flex-col gap-[20px] items-start transition-transform duration-300 z-30 ${ham ? "translate-x-0" : "translate-x-full"}`}
       >
         <RxCross1
-          className=" text-white absolute top-[20px] right-[20px] w-[25px] h-[25px]"
+          className=" text-white absolute  cursor-pointer top-[20px] right-[20px] w-[25px] h-[25px]"
           onClick={() => setHam(false)}
         />
         <button
-          className="min-w-[150px] h-[60px]  text-black font-semibold   bg-white rounded-full cursor-pointer text-[19px] "
+          className="w-70 h-[60px] text-black font-semibold bg-white rounded-full cursor-pointer text-[19px]"
           onClick={handleLogOut}
         >
           Log Out
         </button>
         <button
-          className="min-w-[150px] h-[60px]  text-black font-semibold  bg-white  rounded-full cursor-pointer text-[19px] px-[20px] py-[10px] "
+          className="w-full h-[60px] text-black font-semibold bg-white rounded-full cursor-pointer text-[19px]"
           onClick={() => navigate("/customize")}
         >
           Customize your Assistant
         </button>
 
         <div className="w-full h-[2px] bg-gray-400"></div>
-        <h1 className="text-white font-semibold text-[19px]">History</h1>
+        <div className="w-full flex justify-between items-center">
+          <h1 className="text-white font-semibold text-[19px]">History</h1>
+          <button
+            onClick={handleClearHistory}
+            className="text-red-400 text-[14px] font-medium hover:text-red-300 cursor-pointer"
+          >
+            Clear All
+          </button>
+        </div>
 
         <div className="w-full h-[400px] gap-[20px] overflow-y-auto flex flex-col truncate">
           {userData.history?.map((his, index) => (
@@ -254,18 +280,7 @@ function Home() {
           ))}
         </div>
       </div>
-      <button
-        className="min-w-[150px] h-[60px] mt-[30px] text-black font-semibold absolute hidden lg:block top-[20px] right-[20px]  bg-white rounded-full cursor-pointer text-[19px] "
-        onClick={handleLogOut}
-      >
-        Log Out
-      </button>
-      <button
-        className="min-w-[150px] h-[60px] mt-[30px] text-black font-semibold  bg-white absolute top-[100px] right-[20px] rounded-full cursor-pointer text-[19px] px-[20px] py-[10px] hidden lg:block "
-        onClick={() => navigate("/customize")}
-      >
-        Customize your Assistant
-      </button>
+
       <div className="w-[300px] h-[400px] flex justify-center items-center overflow-hidden rounded-4xl shadow-lg">
         <img
           src={userData?.assistantImage}
