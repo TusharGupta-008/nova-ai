@@ -107,3 +107,16 @@ export const askToAssistant = async (req, res) => {
     return res.status(500).json({ response: "ask assistant error" });
   }
 };
+
+export const clearHistory = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { history: [] },
+      { new: true },
+    ).select("-password");
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).json({ message: "clear history error" });
+  }
+};
