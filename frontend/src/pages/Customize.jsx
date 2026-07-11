@@ -36,7 +36,7 @@ function Customize() {
         onClick={() => navigate("/")}
       />
       <h1 className="text-white mb-[40px] text-[30px] text-center ">
-        Select your <span className="text-blue-200">Assistant Image</span>
+        Choose an avatar for <span className="text-blue-200">Nova AI </span>
       </h1>
       <div className="w-full max-w-[900px] flex justify-center items-center flex-wrap gap-[15px]">
         <Card image={Image_1} />

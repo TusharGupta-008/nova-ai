@@ -45,11 +45,11 @@ function SignUp() {
         onSubmit={handleSignUp}
       >
         <h1 className="text-white text-[30px] font-semibold mb-[30px]">
-          Register to <span className="text-blue-400">Virtual Assistant</span>
+          Create your <span className="text-blue-400">Nova AI account</span>
         </h1>
         <input
           type="text"
-          placeholder="Enter your Name"
+          placeholder="Enter your name"
           className="w-full h-[60px] outline-none border-2 border-white bg-transparent  text-white placeholder-gray-300 px-[20px] py-[10px] rounded-full text-[18px]"
           required
           onChange={(e) => setName(e.target.value)}
@@ -57,7 +57,7 @@ function SignUp() {
         />
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Enter your email"
           className="w-full h-[60px] outline-none border-2 border-white bg-transparent  text-white placeholder-gray-300 px-[20px] py-[10px] rounded-full text-[18px]"
           required
           onChange={(e) => setEmail(e.target.value)}
@@ -66,7 +66,7 @@ function SignUp() {
         <div className="w-full h-[60px] border-2 border-white bg-transparent  text-white rounded-full text-[18px] relative">
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="password"
+            placeholder="Enter your password"
             className="w-full h-full rounded-full outline-none bg-transparent placeholder-gray-300 px-[20px] py-[10px]"
             required
             onChange={(e) => setPassword(e.target.value)}
