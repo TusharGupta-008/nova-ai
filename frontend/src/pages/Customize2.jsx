@@ -101,7 +101,7 @@ function Customize2() {
           </h1>
           <input
             type="text"
-            placeholder="eg. shifra"
+            placeholder="eg. nova"
             className="w-full max-w-[600px] h-[60px] outline-none border-2 border-white bg-transparent text-white placeholder-gray-300 px-[20px] py-[10px] rounded-full text-[18px]"
             required
             onChange={(e) => setAssistantName(e.target.value)}
