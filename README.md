@@ -9,11 +9,20 @@ Built with the MERN Stack and Groq API. Talk to your own customizable AI assista
 
 ## 📸 Screenshots
 
-<!-- Add screenshots here after setting them up — instructions below -->
+### Home
+![Home](screenshots/home.png)
 
-| Home Screen | Customize Assistant | History Panel |
-|---|---|---|
-| ![Home](./screenshots/home.png) | ![Customize](./screenshots/customize.png) | ![History](./screenshots/history.png) |
+### Sign In
+![Sign In](screenshots/signin.png)
+
+### Customize Assistant
+![Customize](screenshots/customize.png)
+
+### AI Response
+![Response](screenshots/response.png)
+
+### History
+![History](screenshots/history.png)
 
 ---
 
