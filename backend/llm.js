@@ -56,9 +56,7 @@ now your userInput- ${command}
     });
 
     return result.choices[0].message.content;
-    console.log("Groq replied");
-    console.log(apiUrl);
-    console.log(process.env.GROQ_API_KEY);
+    
   } catch (error) {
     console.log(error.response?.data);
     console.log(error.message);

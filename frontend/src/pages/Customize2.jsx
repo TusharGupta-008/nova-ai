@@ -97,7 +97,7 @@ function Customize2() {
             onClick={() => navigate("/customize")}
           />
           <h1 className="text-white mb-[40px] text-[30px] text-center ">
-            Name Your <span className="text-blue-200">Assistant </span>
+            Name your <span className="text-blue-200">Assistant </span>
           </h1>
           <input
             type="text"

@@ -15,9 +15,12 @@ function Home() {
   const [aiText, setAiText] = useState("");
   const isSpeakingRef = useRef(false);
   const recognitionRef = useRef(null);
+  const isActivatedRef = useRef(false);
   const [ham, setHam] = useState(false);
   const isRecognizingRef = useRef(false);
   const synth = window.speechSynthesis;
+  const [showHint, setShowHint] = useState(true);
+  const [hintCollapsed, setHintCollapsed] = useState(false);
 
   const handleLogOut = async () => {
     try {
@@ -194,30 +197,51 @@ function Home() {
         }, 1000);
       }
     };
-
     recognition.onresult = async (e) => {
       console.log("onresult fired");
-      console.log(event.results[0][0].transcript);
       const transcript = e.results[e.results.length - 1][0].transcript.trim();
-      if (
-        transcript.toLowerCase().includes(userData.assistantName.toLowerCase())
-      ) {
-        setAiText("");
-        setUserText(transcript);
-        recognition.stop();
-        isRecognizingRef.current = false;
-        setListening(false);
+      console.log(transcript);
 
-        const data = await getGroqResponse(transcript);
+      const containsName = transcript
+        .toLowerCase()
+        .includes(userData.assistantName.toLowerCase());
 
-        handleCommand(data);
-        setAiText(data.response);
-        setUserText("");
+      // Case 1: not yet activated — require the name to "wake" it
+      if (!isActivatedRef.current) {
+        if (containsName) {
+          isActivatedRef.current = true;
+          setHintCollapsed(true);
+
+          setAiText("");
+          setUserText(transcript);
+          recognition.stop();
+          isRecognizingRef.current = false;
+          setListening(false);
+
+          const data = await getGroqResponse(transcript);
+          handleCommand(data);
+          setAiText(data.response);
+          setUserText("");
+        }
+        // if name not said yet, ignore transcript entirely — don't process
+        return;
       }
+
+      // Case 2: already activated — process every command directly, no name needed
+      setAiText("");
+      setUserText(transcript);
+      recognition.stop();
+      isRecognizingRef.current = false;
+      setListening(false);
+
+      const data = await getGroqResponse(transcript);
+      handleCommand(data);
+      setAiText(data.response);
+      setUserText("");
     };
 
     const greeting = new SpeechSynthesisUtterance(
-      `Hello ${userData.name}, what can I help you with?`,
+      `Hello ${userData.name}. I'm ${userData.assistantName}. How can I help you today?`,
     );
     greeting.lang = "hi-IN";
 
@@ -239,6 +263,38 @@ function Home() {
         onClick={() => setHam(true)}
       />
       <div
+        className={`absolute top-[20px] left-1/2 -translate-x-1/2 transition-all duration-300 ${hintCollapsed ? "w-[50px] h-[50px]" : "w-[90%] max-w-[400px]"}`}
+      >
+        {hintCollapsed ? (
+          <button
+            onClick={() => setHintCollapsed(false)}
+            className="w-[50px] h-[50px] rounded-full bg-[#00000053] backdrop-blur-lg flex items-center justify-center text-white text-[20px] cursor-pointer"
+          >
+            💡
+          </button>
+        ) : (
+          <div className="bg-[#00000053] backdrop-blur-lg rounded-2xl p-[20px] text-white relative">
+            <button
+              onClick={() => setHintCollapsed(true)}
+              className="absolute top-[10px] right-[10px] text-white/60 hover:text-white cursor-pointer"
+            >
+              ✕
+            </button>
+            <p className="text-blue-300 font-semibold mb-[10px]">
+              💡 Try saying
+            </p>
+            <p className="mb-[5px]">
+              "Hey {userData?.assistantName}, what's the weather?"
+            </p>
+            <p className="mb-[5px]">
+              "Hey {userData?.assistantName}, open YouTube."
+            </p>
+            <p>"Hey {userData?.assistantName}, tell me a joke."</p>
+          </div>
+        )}
+      </div>
+      ;
+      <div
         className={`fixed top-0 right-0 h-full w-full lg:w-[400px] bg-[#00000090] backdrop-blur-lg p-[20px] flex flex-col gap-[20px] items-start transition-transform duration-300 z-30 ${ham ? "translate-x-0" : "translate-x-full"}`}
       >
         <RxCross1
@@ -255,12 +311,12 @@ function Home() {
           className="w-full h-[60px] text-black font-semibold bg-white rounded-full cursor-pointer text-[19px]"
           onClick={() => navigate("/customize")}
         >
-          Customize your Assistant
+          Customize Assistant
         </button>
 
         <div className="w-full h-[2px] bg-gray-400"></div>
         <div className="w-full flex justify-between items-center">
-          <h1 className="text-white font-semibold text-[19px]">History</h1>
+          <h1 className="text-white font-semibold text-[21px]">History</h1>
           <button
             onClick={handleClearHistory}
             className="text-red-400 text-[14px] font-medium hover:text-red-300 cursor-pointer"
@@ -280,7 +336,7 @@ function Home() {
           ))}
         </div>
       </div>
-
+      -
       <div className="w-[300px] h-[400px] flex justify-center items-center overflow-hidden rounded-4xl shadow-lg">
         <img
           src={userData?.assistantImage}
@@ -293,7 +349,6 @@ function Home() {
       </h1>
       {!aiText && <img src={userImg} alt="" className="w-[200px]" />}
       {aiText && <img src={aiImg} alt="" className="w-[200px]" />}
-
       <h1 className="text-white text-[18px] font-semibold text-wrap">
         {userText ? userText : aiText ? aiText : null}
       </h1>
