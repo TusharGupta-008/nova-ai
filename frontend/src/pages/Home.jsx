@@ -345,7 +345,7 @@ function Home() {
         />
       </div>
       <h1 className="text-white text-[18px] font-semibold">
-        I'm {userData?.assistantName}
+       Hey I'm {userData?.assistantName}
       </h1>
       {!aiText && <img src={userImg} alt="" className="w-[200px]" />}
       {aiText && <img src={aiImg} alt="" className="w-[200px]" />}
