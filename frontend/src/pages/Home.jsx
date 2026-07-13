@@ -93,39 +93,35 @@ function Home() {
     synth.speak(utterence);
   };
 
-  const handleCommand = (data, newTab = null) => {
+  const handleCommand = (data) => {
     const { type, userInput, response } = data;
     speak(response);
 
-    const openUrl = (url) => {
-      if (newTab) {
-        newTab.location.href = url;
-      } else {
-        window.open(url, "_blank");
-      }
+    const navigateTo = (url) => {
+      window.location.href = url;
     };
 
     if (type === "google-search") {
-      openUrl(
+      navigateTo(
         `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
       );
     }
     if (type === "calculator-open") {
-      openUrl(`https://www.google.com/search?q=calculator`);
+      navigateTo(`https://www.google.com/search?q=calculator`);
     }
     if (type === "instagram-open") {
-      openUrl(`https://www.instagram.com/`);
+      navigateTo(`https://www.instagram.com/`);
     }
     if (type === "facebook-open") {
-      openUrl(`https://www.facebook.com/`);
+      navigateTo(`https://www.facebook.com/`);
     }
     if (type === "weather-show") {
-      openUrl(
+      navigateTo(
         `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
       );
     }
     if (type === "youtube-search" || type === "youtube-play") {
-      openUrl(
+      navigateTo(
         `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
       );
     }
@@ -240,43 +236,8 @@ function Home() {
       isRecognizingRef.current = false;
       setListening(false);
 
-      // Quick keyword check — only open a tab synchronously if it's LIKELY a tab-needing command
-      const tabKeywords = [
-        "youtube",
-        "google",
-        "search",
-        "weather",
-        "instagram",
-        "facebook",
-        "calculator",
-        "play",
-        "open",
-      ];
-      const mightNeedTab = tabKeywords.some((word) =>
-        transcript.toLowerCase().includes(word),
-      );
-
-      const newTab = mightNeedTab ? window.open("", "_blank") : null;
-
       const data = await getGroqResponse(transcript);
-
-      const needsTab = [
-        "google-search",
-        "youtube-search",
-        "youtube-play",
-        "calculator-open",
-        "instagram-open",
-        "facebook-open",
-        "weather-show",
-      ].includes(data.type);
-
-      if (needsTab && newTab) {
-        handleCommand(data, newTab);
-      } else {
-        if (newTab) newTab.close(); // only close if we actually opened one
-        handleCommand(data);
-      }
-
+      handleCommand(data);
       setAiText(data.response);
       setUserText("");
     };
