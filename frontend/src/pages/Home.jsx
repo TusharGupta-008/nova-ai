@@ -231,7 +231,6 @@ function Home() {
 
       await processCommand(transcript);
     };
-
     const processCommand = async (transcript) => {
       isProcessingRef.current = true;
 
@@ -241,7 +240,23 @@ function Home() {
       isRecognizingRef.current = false;
       setListening(false);
 
-      const newTab = window.open("", "_blank"); // open synchronously, before await
+      // Quick keyword check — only open a tab synchronously if it's LIKELY a tab-needing command
+      const tabKeywords = [
+        "youtube",
+        "google",
+        "search",
+        "weather",
+        "instagram",
+        "facebook",
+        "calculator",
+        "play",
+        "open",
+      ];
+      const mightNeedTab = tabKeywords.some((word) =>
+        transcript.toLowerCase().includes(word),
+      );
+
+      const newTab = mightNeedTab ? window.open("", "_blank") : null;
 
       const data = await getGroqResponse(transcript);
 
@@ -255,10 +270,10 @@ function Home() {
         "weather-show",
       ].includes(data.type);
 
-      if (needsTab) {
+      if (needsTab && newTab) {
         handleCommand(data, newTab);
       } else {
-        newTab.close();
+        if (newTab) newTab.close(); // only close if we actually opened one
         handleCommand(data);
       }
 
