@@ -1,7 +1,8 @@
 import uploadOnCloudinary from "../config/cloudinary.js";
 import groqResponse from "../llm.js";
 import User from "../models/user.model.js";
-import moment from "moment";
+import moment from "moment-timezone";   // ← changed from "moment"
+
 export const getCurrentUser = async (req, res) => {
   try {
     const userId = req.userId;
@@ -53,7 +54,7 @@ export const askToAssistant = async (req, res) => {
 
     const jsonMatch = result.match(/{[\s\S]*}/);
     if (!jsonMatch) {
-      return res.ststus(400).json({ response: "sorry, i can't understand" });
+      return res.status(400).json({ response: "sorry, i can't understand" });
     }
     const gemResult = JSON.parse(jsonMatch[0]);
     console.log(gemResult);
@@ -64,25 +65,25 @@ export const askToAssistant = async (req, res) => {
         return res.json({
           type,
           userInput: gemResult.userInput,
-          response: `current date is ${moment().format("YYYY-MM-DD")}`,
+          response: `current date is ${moment().tz("Asia/Kolkata").format("YYYY-MM-DD")}`,
         });
       case "get-time":
         return res.json({
           type,
           userInput: gemResult.userInput,
-          response: `current time is ${moment().format("hh:mm A")}`,
+          response: `current time is ${moment().tz("Asia/Kolkata").format("hh:mm A")}`,
         });
       case "get-day":
         return res.json({
           type,
           userInput: gemResult.userInput,
-          response: `today is ${moment().format("dddd")}`,
+          response: `today is ${moment().tz("Asia/Kolkata").format("dddd")}`,
         });
       case "get-month":
         return res.json({
           type,
           userInput: gemResult.userInput,
-          response: `today is ${moment().format("MMMM")}`,
+          response: `today is ${moment().tz("Asia/Kolkata").format("MMMM")}`,
         });
       case "google-search":
       case "youtube-search":
