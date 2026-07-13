@@ -21,6 +21,7 @@ function Home() {
   const synth = window.speechSynthesis;
   const [showHint, setShowHint] = useState(true);
   const [hintCollapsed, setHintCollapsed] = useState(false);
+  const isProcessingRef = useRef(false);
 
   const handleLogOut = async () => {
     try {
@@ -54,7 +55,11 @@ function Home() {
   };
 
   const startRecognition = () => {
-    if (!isSpeakingRef.current && !isRecognizingRef.current) {
+    if (
+      !isSpeakingRef.current &&
+      !isRecognizingRef.current &&
+      !isProcessingRef.current
+    ) {
       try {
         recognitionRef.current?.start();
         console.log("Recognition requested to start");
@@ -79,8 +84,9 @@ function Home() {
     utterence.onend = () => {
       setAiText("");
       isSpeakingRef.current = false;
+      isProcessingRef.current = false; // ✅ only now safe to restart listening
       setTimeout(() => {
-        startRecognition(); // ⏳ Delay se race condition avoid hoti hai
+        startRecognition();
       }, 800);
     };
     synth.cancel(); // 🛑 pehle se koi speech ho to band karo
@@ -91,43 +97,37 @@ function Home() {
     const { type, userInput, response } = data;
     speak(response);
 
-    if (type === "google-search") {
-      const query = encodeURIComponent(userInput);
-      const url = `https://www.google.com/search?q=${query}`;
-
+    const openUrl = (url) => {
       if (newTab) {
         newTab.location.href = url;
       } else {
         window.open(url, "_blank");
       }
+    };
+
+    if (type === "google-search") {
+      openUrl(
+        `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
+      );
     }
     if (type === "calculator-open") {
-      window.open(`https://www.google.com/search?q=calculator`, "_blank");
+      openUrl(`https://www.google.com/search?q=calculator`);
     }
     if (type === "instagram-open") {
-      window.open(`https://www.instagram.com/`, "_blank");
+      openUrl(`https://www.instagram.com/`);
     }
     if (type === "facebook-open") {
-      window.open(`https://www.facebook.com/`, "_blank");
+      openUrl(`https://www.facebook.com/`);
     }
     if (type === "weather-show") {
-      if (type === "weather-show") {
-        const query = encodeURIComponent(userInput);
-
-        window.open(`https://www.google.com/search?q=${query}`, "_blank");
-      }
+      openUrl(
+        `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
+      );
     }
-
     if (type === "youtube-search" || type === "youtube-play") {
-      const query = encodeURIComponent(userInput);
-      console.log("Opening YouTube...");
-      const url = `https://www.youtube.com/results?search_query=${query}`;
-
-      if (newTab) {
-        newTab.location.href = url;
-      } else {
-        window.open(url, "_blank");
-      }
+      openUrl(
+        `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
+      );
     }
   };
 
@@ -166,7 +166,7 @@ function Home() {
     recognition.onend = () => {
       isRecognizingRef.current = false;
       setListening(false);
-      if (isMounted && !isSpeakingRef.current) {
+      if (isMounted && !isSpeakingRef.current && !isProcessingRef.current) {
         setTimeout(() => {
           if (isMounted) {
             try {
@@ -184,7 +184,12 @@ function Home() {
       console.warn("Recognition error:", event.error);
       isRecognizingRef.current = false;
       setListening(false);
-      if (event.error !== "aborted" && isMounted && !isSpeakingRef.current) {
+      if (
+        event.error !== "aborted" &&
+        isMounted &&
+        !isSpeakingRef.current &&
+        !isProcessingRef.current
+      ) {
         setTimeout(() => {
           if (isMounted) {
             try {
@@ -199,6 +204,15 @@ function Home() {
     };
     recognition.onresult = async (e) => {
       console.log("onresult fired");
+
+      // Hard guard — ignore anything heard while Nova is speaking or already processing
+      if (isSpeakingRef.current || isProcessingRef.current) {
+        console.log(
+          "Ignoring result — assistant is currently speaking or processing",
+        );
+        return;
+      }
+
       const transcript = e.results[e.results.length - 1][0].transcript.trim();
       console.log(transcript);
 
@@ -206,46 +220,55 @@ function Home() {
         .toLowerCase()
         .includes(userData.assistantName.toLowerCase());
 
-      // Case 1: not yet activated — require the name to "wake" it
       if (!isActivatedRef.current) {
         if (containsName) {
           isActivatedRef.current = true;
           setHintCollapsed(true);
-
-          setAiText("");
-          setUserText(transcript);
-          recognition.stop();
-          isRecognizingRef.current = false;
-          setListening(false);
-
-          const data = await getGroqResponse(transcript);
-          handleCommand(data);
-          setAiText(data.response);
-          setUserText("");
+          await processCommand(transcript);
         }
-        // if name not said yet, ignore transcript entirely — don't process
         return;
       }
 
-      // Case 2: already activated — process every command directly, no name needed
+      await processCommand(transcript);
+    };
+
+    const processCommand = async (transcript) => {
+      isProcessingRef.current = true;
+
       setAiText("");
       setUserText(transcript);
       recognition.stop();
       isRecognizingRef.current = false;
       setListening(false);
 
+      const newTab = window.open("", "_blank"); // open synchronously, before await
+
       const data = await getGroqResponse(transcript);
-      handleCommand(data);
+
+      const needsTab = [
+        "google-search",
+        "youtube-search",
+        "youtube-play",
+        "calculator-open",
+        "instagram-open",
+        "facebook-open",
+        "weather-show",
+      ].includes(data.type);
+
+      if (needsTab) {
+        handleCommand(data, newTab);
+      } else {
+        newTab.close();
+        handleCommand(data);
+      }
+
       setAiText(data.response);
       setUserText("");
     };
 
-    const greeting = new SpeechSynthesisUtterance(
+    speak(
       `Hello ${userData.name}. I'm ${userData.assistantName}. How can I help you today?`,
     );
-    greeting.lang = "hi-IN";
-
-    window.speechSynthesis.speak(greeting);
 
     return () => {
       isMounted = false;
@@ -345,7 +368,7 @@ function Home() {
         />
       </div>
       <h1 className="text-white text-[18px] font-semibold">
-       Hey I'm {userData?.assistantName}
+        Hey I'm {userData?.assistantName}
       </h1>
       {!aiText && <img src={userImg} alt="" className="w-[200px]" />}
       {aiText && <img src={aiImg} alt="" className="w-[200px]" />}
