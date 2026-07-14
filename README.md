@@ -174,11 +174,15 @@ Virtual Assistant/
 
 ---
 
-## 👤 Author
+## 👨‍💻 Author
 
 **Tushar Gupta**
-GitHub: [@TusharGupta-008](https://github.com/TusharGupta-008)
-LinkedIn:  https://www.linkedin.com/in/tushar-gupta-91791627a/
+
+GitHub:  
+https://github.com/TusharGupta-008
+
+LinkedIn:  
+https://www.linkedin.com/in/tushar-gupta-91791627a/
 
 ---
 
