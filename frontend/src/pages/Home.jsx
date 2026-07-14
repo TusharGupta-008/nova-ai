@@ -22,6 +22,8 @@ function Home() {
   const [showHint, setShowHint] = useState(true);
   const [hintCollapsed, setHintCollapsed] = useState(false);
   const isProcessingRef = useRef(false);
+  const [pendingLink, setPendingLink] = useState(null);
+  const [pendingLabel, setPendingLabel] = useState("");
 
   const handleLogOut = async () => {
     try {
@@ -97,32 +99,39 @@ function Home() {
     const { type, userInput, response } = data;
     speak(response);
 
-    const navigateTo = (url) => {
-      window.location.href = url;
+    const setLink = (url, label) => {
+      setPendingLink(url);
+      setPendingLabel(label);
     };
 
     if (type === "google-search") {
-      navigateTo(
+      setLink(
         `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
+        "Open Google Search ↗",
       );
     }
     if (type === "calculator-open") {
-      navigateTo(`https://www.google.com/search?q=calculator`);
+      setLink(
+        `https://www.google.com/search?q=calculator`,
+        "Open Calculator ↗",
+      );
     }
     if (type === "instagram-open") {
-      navigateTo(`https://www.instagram.com/`);
+      setLink(`https://www.instagram.com/`, "Open Instagram ↗");
     }
     if (type === "facebook-open") {
-      navigateTo(`https://www.facebook.com/`);
+      setLink(`https://www.facebook.com/`, "Open Facebook ↗");
     }
     if (type === "weather-show") {
-      navigateTo(
+      setLink(
         `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
+        "Open Weather ↗",
       );
     }
     if (type === "youtube-search" || type === "youtube-play") {
-      navigateTo(
+      setLink(
         `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
+        "Open YouTube ↗",
       );
     }
   };
@@ -227,8 +236,11 @@ function Home() {
 
       await processCommand(transcript);
     };
+
     const processCommand = async (transcript) => {
       isProcessingRef.current = true;
+      setPendingLink(null);
+      setPendingLabel("");
 
       setAiText("");
       setUserText(transcript);
@@ -290,9 +302,9 @@ function Home() {
             </p>
             <p>"Hey {userData?.assistantName}, tell me a joke."</p>
             <p className="text-white/50 text-[13px] mt-[10px]">
-              Tip: opening YouTube, Google, etc. will navigate away from this
-              page — just hit back or revisit this link to talk to{" "}
-              {userData?.assistantName} again.
+              Tip: for actions like opening YouTube or Google,{" "}
+              {userData?.assistantName} will show a button below — just tap it
+              to open in a new tab.
             </p>
           </div>
         )}
@@ -355,6 +367,20 @@ function Home() {
       <h1 className="text-white text-[18px] font-semibold text-wrap">
         {userText ? userText : aiText ? aiText : null}
       </h1>
+      {pendingLink && (
+        <a
+          href={pendingLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => {
+            setPendingLink(null);
+            setPendingLabel("");
+          }}
+          className="mt-[10px] px-[20px] py-[10px] bg-white text-black font-semibold rounded-full text-[16px] cursor-pointer hover:bg-gray-200 transition"
+        >
+          {pendingLabel}
+        </a>
+      )}
     </div>
   );
 }
