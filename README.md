@@ -1,9 +1,14 @@
-# Nova AI — An Intelligent Voice Assistant
+# 🤖 Nova AI — An Intelligent Voice Assistant
 
 Built with the MERN Stack and Groq API. Talk to your own customizable AI assistant — ask questions, get the time/date, search the web, open apps like YouTube, Instagram, and Facebook, check the weather, and more, all through natural voice commands.
 
-🔗 **Live Demo:** [add your Vercel link here once deployed]
-🎥 **Demo Video / GIF:** [optional — add later if you record one]
+## 🚀 Live Demo
+
+🌐 **Live Application:**  
+https://nova-ai-mu-eight.vercel.app/
+
+📂 **Source Code:**  
+https://github.com/TusharGupta-008/nova-ai
 
 ---
 
@@ -173,6 +178,7 @@ Virtual Assistant/
 
 **Tushar Gupta**
 GitHub: [@TusharGupta-008](https://github.com/TusharGupta-008)
+LinkedIn:  https://www.linkedin.com/in/tushar-gupta-91791627a/
 
 ---
 
