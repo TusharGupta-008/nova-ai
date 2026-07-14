@@ -289,10 +289,14 @@ function Home() {
               "Hey {userData?.assistantName}, open YouTube."
             </p>
             <p>"Hey {userData?.assistantName}, tell me a joke."</p>
+            <p className="text-white/50 text-[13px] mt-[10px]">
+              Tip: opening YouTube, Google, etc. will navigate away from this
+              page — just hit back or revisit this link to talk to{" "}
+              {userData?.assistantName} again.
+            </p>
           </div>
         )}
       </div>
-      ;
       <div
         className={`fixed top-0 right-0 h-full w-full lg:w-[400px] bg-[#00000090] backdrop-blur-lg p-[20px] flex flex-col gap-[20px] items-start transition-transform duration-300 z-30 ${ham ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -335,7 +339,7 @@ function Home() {
           ))}
         </div>
       </div>
-      -
+
       <div className="w-[300px] h-[400px] flex justify-center items-center overflow-hidden rounded-4xl shadow-lg">
         <img
           src={userData?.assistantImage}
